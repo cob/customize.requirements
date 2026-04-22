@@ -1,0 +1,13 @@
+{{!--
+Some of these params might not be passed explicitly
+but as part of the context (if this is called in an #each
+and the this has a param called label, we don't have to pass
+it explicitly)
+ --}}
+<div class='flex items-center ' title='{{label}}'>
+      <input {{#if (eq query (lookup @root.vars varName))}} checked {{/if}} id='{{id}}' name='{{name}}' type='radio' class='h-0 w-0'>
+      <label for='chosenImportance' class='my-1 text-md rounded-md px-1 {{#if (eq query (lookup @root.vars varName))}} bg-indigo-600 {{/if}} '>
+          <i class='{{icon}}'></i>
+          {{label}}
+      </label>
+</div>

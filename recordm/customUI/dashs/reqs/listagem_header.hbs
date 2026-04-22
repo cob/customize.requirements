@@ -1,0 +1,32 @@
+<div class='pb-4 mb-4 border-b border-gray-300 '>
+  <div class='flex flex-col justify-between gap-y-4'>
+
+
+    <div class='flex flex-row gap-2 items-center'>
+      {{#if selectedNode.value}}
+      <span class='text-lg text-stone-900 font-semibold'>{{selectedNode.value.0.name}}</span>
+      <a href='/recordm/#/instance/{{selectedNode.value.0.id}}'
+        class='w-fit h-fit cursor-pointer hover:font-bold inline-flex items-center gap-x-0.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 dark:bg-gray-400/10 dark:text-gray-400'
+        target='_blank'>
+        See Template <i class='fa-solid fa-arrow-right'></i>
+      </a>
+      {{else}}
+      <span class='text-gray-400'>
+        Select a template to see its details
+      </span>
+      {{/if}}
+    </div>
+    <div class='flex gap-x-2'>
+      {{#if selectedNode.value}}
+      <a class='transition px-1 ease-in-out duration-300 rounded-md border border-gray-300  shadow-sm transform hover:translate-x-0.5 p-1 bg-white cursor-pointer w-fit text-sm'
+        href='/recordm/index.html#/instance/create/41/data={\"opts\": { \"auto-paste-if-empty\": true, \"readonly-on-paste\": true },\"fields\": [{\"value\":\"Template-Item\",\"fieldDefinition\":{\"name\":\"Type\"}}, {\"value\":\"{{@root.selectedNode.value.0.id}}\",\"fieldDefinition\":{\"name\":\"Parent Node\"}}]}' target='_blank'>
+        <i class='fa-solid fa-folder-tree mr-1'></i> Add Subsection
+      </a>
+      <a class='transition px-1 ease-in-out duration-300 rounded-md border border-gray-300  shadow-sm transform hover:translate-x-0.5 p-1 bg-white cursor-pointer w-fit text-sm'
+        href='/recordm/index.html#/instance/create/43/data={\"opts\": { \"auto-paste-if-empty\": true, \"readonly-on-paste\": true },\"fields\": [{\"value\":\"{{@root.selectedNode.value.0.id}}\",\"fieldDefinition\":{\"name\":\"Requirement Node\"}}]}' target='_blank'>
+        <i class='fa-regular fa-circle-question mr-1'></i> Add Requirement
+      </a>
+      {{/if}}
+    </div>
+  </div>
+</div>
