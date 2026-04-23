@@ -1,6 +1,10 @@
-import groovy.transform.Field
+import config.EnvironmentConfig
+import groovy.text.SimpleTemplateEngine
+import groovy.transform.Field;
+import utils.MarkdownProcessor;
 
 @Field DEFINITION = "Requirements"
+@Field FROM = "CoB <support@cob.pt>";
 
 if( msg.product == "recordm" && msg.type == DEFINITION ) {
 
@@ -65,6 +69,26 @@ if( msg.product == "recordm" && msg.type == DEFINITION ) {
 		// update requirement results
 		def updates = mapForResult(msg)
 		recordm.update("Requirement Results", activeResultQuery, updates)
+
+        // $log will posteriorly "delete" New Comment and move it to Comments
+        if(msg.field("New Comment").changed() && msg.value("New Comment") != null) {
+            def identifier = msg.value("Identifier")
+            def title = msg.value("Title")
+            def state = msg.value("Answer State")
+            def lastComment = msg.value("New Comment") ?: ""
+            def clientEmail = msg.value("Answer Responsible Email")
+            def responsibleEmail = msg.value("Acceptance Responsible Email")
+            def targetEmails = [clientEmail, responsibleEmail]
+
+            String body = buildMsgBody(msg.instance.id, identifier, title, state, lastComment)
+            String subj = "Requirement '" + identifier + " - " + title + "' was " + state
+
+            if (targetEmails.size() > 0) {
+                sendEmails(FROM, targetEmails, subj, body)
+            } else {
+                log.info("Req email not sent. No target emails defined")
+            }
+        }
 	}
 }
 
@@ -105,4 +129,36 @@ def getResultOfCycle(Long timestamp, Integer reqId) {
 		return null
 	}
 
+}
+
+def sendEmails(from, emails, subject, body) {
+    if (emails != null && emails.size > 0) {
+        if (EnvironmentConfig.EMAIL_ENABLED) {
+            from = new String(from.getBytes(), "ISO-8859-1")
+            email.send(subject, body, ["from": from.toString(), "to": emails, "html": true])
+        } else {
+            log.info("would email $emails");
+        }
+    }
+}
+
+def buildMsgBody(instanceId, reqIdentifier, reqTitle, reqStatus, lastComment) {
+
+    def body = new SimpleTemplateEngine().createTemplate(
+            '''
+Requirement <strong>"${req_identifier} - ${req_title}"</strong> has been marked <strong>${req_status}</strong>.
+<br><br>
+<div style="background-color:#f6f6f6;padding:10px">${lastComment}</div>
+<br><br>
+You can check it <a href="https://suporte.cultofbits.com/recordm/index.html#/instance/${id}">here</a>.<br>
+'''
+    ).make([
+            req_identifier: reqIdentifier,
+            req_title     : reqTitle,
+            req_status    : reqStatus,
+            lastComment   : new MarkdownProcessor().toHtml(lastComment),
+            id            : instanceId
+    ]).toString()
+
+    return body
 }
